@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using Vidly.Models;
 
 namespace Vidly.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -17,7 +19,7 @@ namespace Vidly.Controllers
         {
             return View();
         }
-
+        [AllowAnonymous]
         public IActionResult Privacy()
         {
             return View();

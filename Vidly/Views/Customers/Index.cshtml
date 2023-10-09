@@ -52,75 +52,150 @@
 
 <script type="text/javascript">
 
+    // simple get and delete
 
-    $(document).ready(function () {
-        loadDatainTable();
-        DeleteCustomer();
-    });
+    // $(document).ready(function () {
+
+    //     loadDatainTable();
+    //     DeleteCustomer();
+    // });
 
 
-    function loadDatainTable(){
-        //debugger;
-        var url = "/Customers/GetCustomer/";
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                var tbody = $('#table-body');
-                tbody.empty();
-                debugger;
-                // Loop through the data and append it to the table
-                $.each(data, function (index, item) {
-                    var row = '<tr>' +
-                        '<td>' + item.name + '</td>' +
-                        '<td>' + item.membershipType.name + '</td>' +
-                        '<td>' + '<a class="btn btn-danger deletecust" id='+item.id+'>Delete</a>' + '</td>'
-                        '</tr>';
-                    tbody.append(row);
-                });
-            },
-            error: function (xhr, status, error) {
-                console.error(error);
-            }
+    // function loadDatainTable(){
+    //     //debugger;
+    //     var url = "/Customers/GetCustomer/";
+    //     $.ajax({
+    //         url: url,
+    //         type: 'GET',
+    //         dataType: 'json',
+    //         success: function (data) {
+    //             var tbody = $('#table-body');
+    //             tbody.empty();
+    //             debugger;
+    //             // Loop through the data and append it to the table
+    //             $.each(data, function (index, item) {
+    //                 var row = '<tr>' +
+    //                     '<td>' + item.name + '</td>' +
+    //                     '<td>' + item.membershipType.name + '</td>' +
+    //                     '<td>' + '<a class="btn btn-danger deletecust" id='+item.id+'>Delete</a>' + '</td>'
+    //                     '</tr>';
+    //                 tbody.append(row);
+    //             });
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error(error);
+    //         }
+    //     });
+    // }
+    // function DeleteCustomer()
+    // {
+    //     $('#myCustomer').on("click",".deletecust",function () {
+    //         var button = $(this);
+    //         var idvalue = button.attr("id");
+    //         var url = "/Customers/Delete/"+idvalue;
+    //         //debugger;
+    //         bootbox.confirm({
+    //             message: 'This is a confirm with custom button text and color! Do you like it?',
+    //             buttons: {
+    //                 confirm: {
+    //                     label: 'Yes',
+    //                     className: 'btn-success'
+    //                 },
+    //                 cancel: {
+    //                     label: 'No',
+    //                     className: 'btn-danger'
+    //                 }
+    //             },
+    //             callback: function (result) {
+
+    //                 $.ajax({
+    //                     url: url,
+    //                     type: 'GET',
+    //                     dataType: 'json',
+    //                     success: function (data) {
+    //                         loadDatainTable();
+    //                     },
+    //                     error: function (xhr, status, error) {
+    //                         console.error(error);
+    //                     }
+    //                 });
+    //             }
+    //         });
+    //     });
+    // }
+
+
+    // get dand delete and using data table
+
+        $(document).ready(function () {
+            var table = $("#myCustomer").DataTable();
+
+            // Load data into the table
+            loadDatainTable(table);
+
+            // Handle customer deletion
+            DeleteCustomer(table);
         });
-    }
-    function DeleteCustomer()
-    {
-        $('#myCustomer').on("click",".deletecust",function () {
-            var button = $(this);
-            var idvalue = button.attr("id");
-            var url = "/Customers/Delete/"+idvalue;
-            //debugger;
-            bootbox.confirm({
-                message: 'This is a confirm with custom button text and color! Do you like it?',
-                buttons: {
-                    confirm: {
-                        label: 'Yes',
-                        className: 'btn-success'
-                    },
-                    cancel: {
-                        label: 'No',
-                        className: 'btn-danger'
-                    }
-                },
-                callback: function (result) {
+        function loadDatainTable(table) {
+            var url = "/Customers/GetCustomer/";
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    table.clear().draw(); // Clear existing data in DataTables
 
-                    $.ajax({
-                        url: url,
-                        type: 'GET',
-                        dataType: 'json',
-                        success: function (data) {
-                            loadDatainTable();
-                        },
-                        error: function (xhr, status, error) {
-                            console.error(error);
-                        }
+                    // Loop through the data and append it to the DataTables instance
+                    $.each(data, function (index, item) {
+                        table.row.add([
+                            item.name,
+                            item.membershipType.name,
+                            '<a class="btn btn-danger deletecust" id="' + item.id + '">Delete</a>'
+                        ]).draw(false); // Add a new row and redraw the table
                     });
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
                 }
             });
-        });
-    }
+        }
+        function DeleteCustomer(table) {
+            $('#myCustomer').on("click", ".deletecust", function () {
+                var button = $(this);
+                var idvalue = button.attr("id");
+                var url = "/Customers/Delete/" + idvalue;
+
+                bootbox.confirm({
+                    message: 'Are you sure you want to delete this customer?',
+                    buttons: {
+                        confirm: {
+                            label: 'Yes',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'No',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                url: url,
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function (data) {
+                                    loadDatainTable(table); // Refresh the table after deletion
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error(error);
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
     
 </script>
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using Vidly.Models;
 using Vidly.ViewModels;
 
@@ -22,41 +23,46 @@ namespace Vidly.Controllers
             };
             return View(viewModel);
         }
-        //[HttpPost]
-        //public IActionResult New(CustomerFormVM customerFormVM)
-        //{
-        //    if(ModelState.IsValid)
-        //    {
-        //        _db.Customers.Add(customerFormVM.Customer);
-        //        _db.SaveChanges();
-        //        return RedirectToAction("Index");
-        //    }
-        //    else
-        //    {
-        //        return View(customerFormVM);
-        //    }
 
-        //}
+       // save data through razor syntax and tag helpers
+       //[HttpPost]
+       // public IActionResult New(CustomerFormVM customerFormVM)
+       // {
+       //     if (ModelState.IsValid)
+       //     {
+       //         _db.Customers.Add(customerFormVM.Customer);
+       //         _db.SaveChanges();
+       //         return RedirectToAction("Index");
+       //     }
+       //     else
+       //     {
+       //         return View(customerFormVM);
+       //     }
 
+       // }
+
+        // save data through jqwery syntax
         [HttpPost]
-        public IActionResult New(int Id, string Name, DateTime DOB, bool IsSubs, byte MemberShip)
+        public IActionResult New([FromBody] Customer model)
         {
-            var obj = new Customer();
-            if (Id==0)
-            {
-                obj.Name = Name;
-                obj.Birthdate = DOB;
-                obj.IsSubscribedToNewsletter = IsSubs;
-                obj.MembershipTypeId = MemberShip;
-                _db.Customers.Add(obj);
-                _db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                return View(obj);
-            }
 
+            Customer customer = new Customer()
+            {
+                Name = model.Name,
+                Birthdate = model.Birthdate,
+                IsSubscribedToNewsletter = model.IsSubscribedToNewsletter,
+                MembershipTypeId = model.MembershipTypeId
+            };
+
+            _db.Customers.Add(customer);
+             _db.SaveChanges();
+            return Ok(customer);
+
+        }
+
+        public IActionResult Edit()
+        {
+            return View();
         }
         public IActionResult Index()
         {
@@ -68,6 +74,8 @@ namespace Vidly.Controllers
             }
             return View(data.ToList());
         }
+
+
         public IActionResult Delete(int id)
         {
 

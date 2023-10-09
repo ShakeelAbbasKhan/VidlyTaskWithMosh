@@ -14,13 +14,17 @@ namespace Vidly.Controllers
         }
         public IActionResult Index()
         {
-
+            
             var data = _db.Movies.Include(c => c.Genre).ToList();
             if (data == null)
             {
                 return NotFound();
             }
-            return View(data);
+            if (User.IsInRole(Utility.Helper.Admin)) {
+                return View("Index", data);
+            }
+            return View("ReadOnlyList",data);
+            
         }
         public ActionResult Details(int id)
         {

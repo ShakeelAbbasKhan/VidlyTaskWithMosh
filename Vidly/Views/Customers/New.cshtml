@@ -52,34 +52,37 @@
     @{
         <partial name="_ValidationScriptsPartial" />
     }
-} *@
+}
+ *@
+ 
 
-@model Vidly.ViewModels.CustomerFormVM
 
-<form method="post">
+  @* Save Data through JQuery Start*@
+ @model Vidly.ViewModels.CustomerFormVM
+
+<form id="appointmentForm">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
             <h2 class="text-primary">Create Category</h2>
             <hr />
-            <div class="hidden" id="id"></div>
-            <div class="mb-3 row ps-4">
-                <label id="lblCustName" class="p-0">Customer Name</label>
-                <input type="text" id="txtCustName" class="form-control" />
-                <span asp-validation-for="Customer.Name" class="text-danger"></span>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" maxlength="100" class="form-control" id="custName" />
             </div>
+
             <div class="mb-3 row ps-4">
-                <label id="lblCustBirthDate" class="p-0">Customer Birth Date</label>
-                <input id="txtCustBirthDate" class="form-control" />
-                <span asp-validation-for="Customer.Birthdate" class="text-danger"></span>
+                <label for="datepicker">Select DOB:</label>
+                <input type="date" id="txtCustBirthDate" class="form-control" name="datepicker">
             </div>
+
             <div class="mb-3 row ps-4 align-items-center">
                 <div class="form-check">
-                    <input id="txtCustIsSubs" class="form-check-input" type="checkbox" id="flexCheckDefault">
-                    <label id="lblCustIsSubs" class="form-check-label" for="flexCheckDefault">Subscribe to Newsletter</label>
+                    <input id="txtCustIsSubs" class="form-check-input" type="checkbox">
+                    <label class="form-check-label" for="flexCheckDefault">Subscribe to Newsletter</label>
                 </div>
             </div>
             <div class="mb-3 row ps-4">
-                <label id="lblMembershipType" class="p-0"></label>
+                <label class="p-0"></label>
                 <select id="dropdownMember">
                     <option value="">Select Membership Type</option>
                     @foreach (var item in @Model.MembershipTypes)
@@ -90,7 +93,7 @@
             </div>
             <div class="row">
                 <div class="col-6 col-md-3">
-                    <button id="btnCustSubmit" class="btn btn-primary">Create</button>
+                    <button type="button" id="btnCustSubmit" class="btn btn-success" onclick="onSubmitForm();">Submit</button>
                 </div>
                 <div class="col-6 col-md-3">
                     <a class="btn btn-outline-secondary ms-2" asp-controller="Category" asp-action="Index">Back</a>
@@ -103,68 +106,37 @@
     </div>
 </form>
 
+
 @section Scripts{
 
 <script type="text/javascript">
     $(document).ready(function () {
-        InsertDataintoDB();
     });
 
-
-    $("#btnCustSubmit").click(function (e) {
+    var routeURL = location.protocol + "//" + location.host;
+    function onSubmitForm(){
         debugger;
-        e.preventDefault();
+        var requestData = {
+            Name: $("#custName").val(),
+            Birthdate: $("#txtCustBirthDate").val(),
+            IsSubscribedToNewsletter: $("#txtCustIsSubs").prop('checked'),
+            MembershipTypeId: $("#dropdownMember").val()
+        };
 
-        InsertDataintoDB();
-    });
-    function InsertDataintoDB(){
-        var id= $('#id').val();
-        var name = $('#txtCustName').val();
-        var birthDate = $('#txtCustBirthDate').val();
-        var isSubs = $('#lblCustIsSubs').val();
-        var dropDownMember = $('#dropdownMember').val();
-
-        var formData = new {
-            Id:id,
-            Name:name,
-            DOB:birthDate,
-            IsSubs: isSubs,
-            MemberShip: dropDownMember
-        }
-        
-
-        v/* ar data= Json.searlize */
-
-        $.ajax({
-            url: '/Customers/New',
-            type: 'POST',
-            data: JSON.stringify(formData),
-            contentType: 'application/json',
-            success: function (response) {
-                if (response.status === 1 || response.status === 2) {
-                    calendar.refetchEvents();
-                    //    debugger;
-                    $.notify(response.message, "success");
-                    onCloseModal();
+            $.ajax({
+                url: routeURL + '/Customers/New',
+                type: 'POST',
+                data: JSON.stringify(requestData),
+                contentType: 'application/json',
+                success: function (response) {
+                    debugger;
+                },
+                error: function (xhr,status,error) {
+                console.error(error);
                 }
-                else {
-                    $.notify(response.message, "error");
-                }
-            },
-            error: function (xhr) {
-                $.notify("Error", "error");
-            }
-        });
+            });
     }
+
 </script>
 
-
-}
-
-
-
-@section Scripts{
-    @{
-    <partial name="_ValidationScriptsPartial" />
-    }
 }

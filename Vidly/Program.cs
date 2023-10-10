@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vidly.Models;
@@ -14,6 +16,23 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFramework
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// google auth
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = "Identity.Application";
+    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+})
+        .AddCookie()
+        .AddGoogle(opts =>
+        {
+            opts.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+            opts.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+            opts.SignInScheme = IdentityConstants.ExternalScheme;
+        });
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,6 +43,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -33,7 +54,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 
 app.Run();
